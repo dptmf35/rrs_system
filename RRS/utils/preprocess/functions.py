@@ -52,7 +52,7 @@ def detect_type(type_li, a_type):
 def drink_code(drink):
     result = 0
     if len(str(drink)) == 0:
-        return result
+        return str(result)
 
     if str(drink)[0].isalpha() and str(drink)[0] in drink_key.keys():
         result = drink_key[str(drink)[0]]
@@ -62,7 +62,7 @@ def drink_code(drink):
 def health_code(health):
     result = 0
     if len(str(health)) == 0:
-        return result
+        return str(result)
 
     if str(health)[0].isalpha() and str(health)[0] in health_key.keys():
         result = health_key[str(health)[0]]
@@ -131,3 +131,4 @@ def hobby_transform(df) :
     df['mate_hobby'] = df['mate_hobby'].apply(lambda x: [int(i) for i in str(x).split(',') if i.isdecimal()])
     for i in range(1, 5) :
         df['hobby_type_'+str(i)] = df['mate_hobby'].apply(lambda x : detect_type(globals()['hobby_type']['type_'+str(i)], x))
+    return df

@@ -1,9 +1,5 @@
 
 # datapath
-data_path = './utils/data/'
-
-
-
 
 import getpass
 import os
@@ -18,36 +14,32 @@ warnings.filterwarnings('ignore')
 # user name ex) local : "PC", server : "yeoai"
 userName = getpass.getuser()
 startPath = os.getcwd() # start_api file Execution Path
-localUserPath = f'D:/pyproject/ai_chemi_search_revised'
+localUserPath = f'D:/python/recommendation/RRS'
 serverUserPath = f'/home/{userName}'
 
 # api name
-apiName = "ai_chemistryList"
+apiName = "ai_rrs"
 # model name
-modelName1 = 'model1.pkl'
-modelName2 = 'model2.pkl'
-modelName3 = 'model3.pkl'
+modelName = 'PR_model.pkl'
 # server data conf
-serverApiDataPath = "chemistry_renew_data" # data path
+serverApiDataPath = "RRS_data/" # data path
 
 ##############################################################################################
 # Configure Class
 ##############################################################################################
 class BasicConfig:
     # port
-    port = 8031
+    port = 8060
     # log path
     serverLogPath = "LOGS" + '/' + apiName + '_api'
     logPath = serverUserPath + '/' + serverLogPath + '/' + apiName
     # ai_data path - file load path
     dataPath = serverUserPath + '/ai_data/' + serverApiDataPath
-    ModelPath1 = dataPath + '/' + modelName1
-    ModelPath2 = dataPath + '/' + modelName2
-    ModelPath3 = dataPath + '/' + modelName3
+    ModelPath1 = dataPath + '/' + modelName
 
 class DevConfig():
     # port
-    port = 8831
+    port = 8860
     # log path
     serverDevLogPath = "LOGS_devel" + '/' + apiName + '_api'
     logPath = serverUserPath + '/' + serverDevLogPath + '/' + apiName
@@ -57,29 +49,27 @@ class DevConfig():
 
 class LocalConfig():
     # port
-    port = 8021
+    port = 8060
     # data conf
-    localApiDataPath = 'D:/pyproject/ai_chemi_search_revised/utils/data/'  # data path
+    localApiDataPath = f'D:/python/recommendation/RRS'  # data path
     # log path
     localLogPath = localApiDataPath + "/log"
     logPath = localUserPath + '/' + localLogPath + '/' + apiName
     # ai_data path - file load path
-    dataPath = 'D:/pyproject/ai_chemi_search_revised/utils/model/'
+    dataPath = f'D:/python/recommendation/RRS/utils/data/'
 
 
 ##############################################################################################
 # 실행 위치에 따른 api 가동
 serverPath = serverUserPath + "/API/" + apiName + "_api"
 serverDevPath = serverUserPath + "/API_devel/" + apiName + "_api"
-serverDevTestPath = serverUserPath + "/API_devel/" + apiName + "_api_test"
+
 
 if userName == "yeoai":
     if startPath == serverPath:
         conf = BasicConfig()
     elif startPath == serverDevPath:
         conf = DevConfig()
-    else:
-        conf = DevTestConfig()
 else:
     conf = LocalConfig()
 
@@ -93,8 +83,6 @@ def Uconf():
         "port" : conf.port
     }
     if startPath == serverDevPath:
-        uconf['port'] = conf.port
-    elif startPath == serverDevTestPath:
         uconf['port'] = conf.port
     return uconf
 
@@ -120,11 +108,5 @@ def Gconf():
         gconf['bind'] = f"0.0.0.0:{conf.port}"
         gconf['workers'] = 1
         gconf['pidfile'] = pidFilePath_dev
-
-    elif startPath == serverDevTestPath:
-        # a15_dev_test
-        gconf['bind'] = f"0.0.0.0:{conf.port}"
-        gconf['workers'] = 1
-        gconf['pidfile'] = pidFilePath_test
 
     return gconf

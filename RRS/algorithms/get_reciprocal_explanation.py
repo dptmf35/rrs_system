@@ -1,6 +1,6 @@
 import pandas as pd
-from utils.config.common import data_path
-df = pd.read_pickle(f"{data_path}explanation_base_df.pkl")
+from utils.config.common import conf
+df = pd.read_pickle(f"{conf.dataPath}corr_df.pkl")
 
 
 class Reciprocal_Explanation() :
@@ -11,7 +11,7 @@ class Reciprocal_Explanation() :
         reciprocal_exp_list = list()
 
         for y in y_list :
-            reciprocal_exp = self.get_reciprocal_explanations(x, y)
+            reciprocal_exp = self.get_reciprocal_explanations(x, y[0])
             reciprocal_exp_list.append(reciprocal_exp)
 
         return reciprocal_exp_list
@@ -20,8 +20,8 @@ class Reciprocal_Explanation() :
         exp_x_r = self.get_explanation(x, y)
         exp_y_r = self.get_explanation(y, x)
 
-        reciprocal_exp = f"""{x}에게 {y}가 추천된 이유 : {exp_x_r},
-                        {y}에게 {x}가 추천된 이유 : {exp_y_r}"""
+        reciprocal_exp = {"exp_x_r" : exp_x_r, "exp_y_r" : exp_y_r}
+        # {x}에게 {y}가 추천된 이유 : {exp_x_r}, {y}에게 {x}가 추천된 이유 : {exp_y_r}
 
         return reciprocal_exp
 
@@ -34,12 +34,12 @@ class Reciprocal_Explanation() :
         a_v_df= pd.DataFrame([m_x], columns=view_list, index=[x]).T
 
         # S_x_a_v
-        for col in df.columns[1:] :
+        for col in df.columns :
             S_x_a_v = [df[df['mem_no']==y][col].values[0] for y in a_v_df.index]
             a_v_df[col] = S_x_a_v
-
-        a_v_df = pd.get_dummies(a_v_df)
-        y_a_v = pd.get_dummies(df[df['mem_no']==y])
+        y_df = df[df['mem_no'] == y]
+        del a_v_df['view_list'], a_v_df['send_list'], y_df['view_list'], y_df['send_list'], y_df['smoke_slct'], a_v_df['mem_sex']
+        y_a_v = pd.get_dummies(y_df)
 
         for y_col in y_a_v.columns :
             if y_col in a_v_df.columns and y_a_v[y_col].values[0] != 1 :
@@ -48,6 +48,7 @@ class Reciprocal_Explanation() :
         a_v_df.drop([c for c in a_v_df.columns if c not in y_a_v.columns and c!=x], axis=1, inplace=True)
 
         result = a_v_df.corr()[x].sort_values(ascending=False)
+        # print(result)
         print(f"Highest correlation features for {x} : {[result.index[1]]}, Correlation value : {result.values[1]}")
         return result.index[1:k+1].tolist()
 

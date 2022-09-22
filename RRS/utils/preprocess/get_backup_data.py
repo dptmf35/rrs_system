@@ -1,11 +1,9 @@
 from utils.config.db_configs import *
 import pymysql
 import pandas as pd
-import os
-from datetime import datetime, timedelta
 
 
-class DBConnector() :
+class getBackUpData() :
     def __init__(self):
         self.conn = conn
 
@@ -43,3 +41,8 @@ class DBConnector() :
         df = df.reset_index(drop=True)
         print(f'Deduplicated DataFrame Length : {len(df):,}')
         return df
+
+
+if __name__ == '__main__' :
+    getB = getBackUpData()
+    getB.save_sql()

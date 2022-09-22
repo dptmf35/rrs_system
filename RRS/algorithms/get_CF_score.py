@@ -1,22 +1,24 @@
 import pandas as pd
-from utils.config.common import data_path
-df = pd.read_pickle(f"{data_path}pr_score_base_df.pkl")
+from utils.config.common import conf
+df = pd.read_pickle(f"{conf.dataPath}cf_base_df.pkl")
 
 class CF_score():
     def __init__(self):
         pass
 
-    def get_cf_score(self, x, y_range, top_k=1):
+    def get_cf_score(self, x, y_range, top_k=1, a=0.3978):
         # SentTo_x
         sent_to_x = df[df['mem_no']==x].sent_list.values[0]
 
         # initiate recommendation list
         score_list = list()
 
+
         # number of candidates(RecommendationCandidates) : Top N with PR score
         print(f"Candidate Count : {len(y_range)}")
+
         # 추천 후보 집단(RecommendationCandidates)의 모든 y에 대하여 반복 수행
-        for y in y_range :
+        for y, score in zip(y_range.index, y_range.values) :
             sent_to_y = df[df['mem_no']==y].sent_list.values[0]
             # calculate score x_y
             # initiate score x_y
@@ -56,8 +58,10 @@ class CF_score():
                 harmonic_mean_score = (2 * score_x_y * score_y_x) / (score_x_y + score_y_x)
             else :
                 harmonic_mean_score = 0
+            # add weight alpha(default a=0.3978)
+            final_score = (score[0] * (1-a)) + (harmonic_mean_score * a)
 
-            score_list.append((y, harmonic_mean_score))  # Recs <- (y, reciprocalScore_x,y)
+            score_list.append((y, final_score))  # Recs <- (y, reciprocalScore_x,y)
 
         top_k_list = sorted(score_list, key=lambda x : -x[1])[:top_k]
 
